@@ -1,4 +1,8 @@
 from django.db import models
+import helpers
+
+
+helpers.cloudinary_init()
 
 
 # Create your models here.
