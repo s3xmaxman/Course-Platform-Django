@@ -3,11 +3,17 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 # Register your models here.
-from .models import Course
+from .models import Course, Lesson
+
+
+class LessonInline(admin.TabularInline):
+    model = Lesson
+    extra = 0
 
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
+    inlines = [LessonInline]
     list_display = ["title", "status", "access"]
     list_filter = ["status", "access"]
     fields = [
