@@ -41,6 +41,8 @@ class Course(models.Model):
         choices=PublishStatus.choices,
         default=PublishStatus.DRAFT,
     )
+    timestamp = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     @property
     def is_published(self):
@@ -75,6 +77,7 @@ class Lesson(models.Model):
     description = models.TextField(blank=True, null=True)
     thumbnail = CloudinaryField("image", blank=True, null=True)
     video = CloudinaryField("video", blank=True, null=True, resource_type="video")
+    order = models.IntegerField(default=0)
     preview = models.BooleanField(default=False)
     can_preview = models.BooleanField(
         default=False, help_text="If user doesn't have access"
@@ -84,3 +87,8 @@ class Lesson(models.Model):
         choices=PublishStatus.choices,
         default=PublishStatus.PUBLISHED,
     )
+    timestamp = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["order", "-updated"]

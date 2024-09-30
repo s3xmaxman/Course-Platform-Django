@@ -8,6 +8,7 @@ from .models import Course, Lesson
 
 class LessonInline(admin.TabularInline):
     model = Lesson
+    readonly_fields = ["updated"]
     extra = 0
 
 
