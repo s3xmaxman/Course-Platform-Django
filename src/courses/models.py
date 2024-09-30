@@ -72,3 +72,9 @@ class Course(models.Model):
 
         url = self.image.url.build_url(**image_options)
         return url
+
+
+class Lesson(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    title = models.CharField(max_length=120)
+    description = models.TextField(blank=True, null=True)
