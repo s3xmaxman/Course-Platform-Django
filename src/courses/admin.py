@@ -18,6 +18,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ["title", "status", "access"]
     list_filter = ["status", "access"]
     fields = [
+        "public_id",
         "title",
         "description",
         "image",

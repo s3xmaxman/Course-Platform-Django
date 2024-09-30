@@ -24,29 +24,55 @@ def handle_upload(instance, filename):
     return f"{filename}"
 
 
-def get_public_id_prefix(instance, *args, **kwargs):
+def generate_public_id(instance, *args, **kwargs):
+    """
+    Cloudinary の public_id を生成します。
+
+    コースのタイトルから slug を生成し、UUID の一部を組み合わせます。
+    タイトルが存在しない場合は、UUID のみを使用します。
+
+    Args:
+        instance: Course インスタンス
+        *args: その他の引数
+        **kwargs: その他のキーワード引数
+
+    Returns:
+        str: 生成された public_id
+    """
+
     title = instance.title
+    unique_id = str(uuid.uuid4()).replace("-", "")
 
-    if title:
-        slug = slugify(title)
-        return f"courses/{slug}"
+    if not title:
+        return unique_id
 
-    if instance.id:
-        return f"courses/{instance.id}"
+    slug = slugify(title)
+    unique_id_short = unique_id[:5]
+    return f"{slug}-{unique_id_short}"
 
-    return "courses"
+
+def get_public_id_prefix(instance, *args, **kwargs):
+    public_id = instance.public_id
+
+    if not public_id:
+        return "courses"
+
+    return f"courses/{public_id}"
 
 
 def get_display_name(instance, *args, **kwargs):
     title = instance.title
+
     if title:
         return title
+
     return "Course Upload"
 
 
 class Course(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
+    public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
     image = CloudinaryField(
         "image",
         null=True,
@@ -66,6 +92,12 @@ class Course(models.Model):
     )
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.public_id == "" or self.public_id is None:
+            self.public_id = generate_public_id(self)
+
+        super().save(*args, **kwargs)
 
     @property
     def is_published(self):
@@ -115,3 +147,9 @@ class Lesson(models.Model):
 
     class Meta:
         ordering = ["order", "-updated"]
+
+    def save(self, *args, **kwargs):
+        if self.public_id == "" or self.public_id is None:
+            self.public_id = generate_public_id(self)
+
+        super().save(*args, **kwargs)
