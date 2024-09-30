@@ -42,31 +42,55 @@ def generate_public_id(instance, *args, **kwargs):
 
     title = instance.title
     unique_id = str(uuid.uuid4()).replace("-", "")
-
     if not title:
         return unique_id
-
     slug = slugify(title)
     unique_id_short = unique_id[:5]
     return f"{slug}-{unique_id_short}"
 
 
 def get_public_id_prefix(instance, *args, **kwargs):
+    """
+    Cloudinary の public_id のプレフィックスを生成します。
+
+    もしインスタンスが path 属性を持つ場合、その path をプレフィックスとして使用します。
+    path の先頭と末尾のスラッシュは削除されます。
+
+    もしインスタンスが path 属性を持たない場合、public_id とモデル名からプレフィックスを生成します。
+    public_id が存在しない場合は、モデル名のみを使用します。
+
+    Args:
+        instance: モデルインスタンス
+        *args: その他の引数
+        **kwargs: その他のキーワード引数
+
+    Returns:
+        str: 生成された public_id プレフィックス
+    """
+    if hasattr(instance, "path"):
+        path = instance.path
+        if path.startswith("/"):
+            path = path[1:]
+        if path.endswith("/"):
+            path = path[:-1]
+        return path
     public_id = instance.public_id
-
+    model_class = instance.__class__
+    model_name = model_class.__name__
+    model_name_slug = slugify(model_name)
     if not public_id:
-        return "courses"
-
-    return f"courses/{public_id}"
+        return f"{model_name_slug}"
+    return f"{model_name_slug}/{public_id}"
 
 
 def get_display_name(instance, *args, **kwargs):
-    title = instance.title
-
-    if title:
-        return title
-
-    return "Course Upload"
+    if hasattr(instance, "get_display_name"):
+        return instance.get_display_name()
+    elif hasattr(instance, "title"):
+        return instance.title
+    model_class = instance.__class__
+    model_name = model_class.__name__
+    return f"{model_name} Upload"
 
 
 class Course(models.Model):
@@ -96,8 +120,17 @@ class Course(models.Model):
     def save(self, *args, **kwargs):
         if self.public_id == "" or self.public_id is None:
             self.public_id = generate_public_id(self)
-
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return self.path
+
+    @property
+    def path(self):
+        return f"/courses/{self.public_id}"
+
+    def get_display_name(self):
+        return f"{self.title} - Course"
 
     @property
     def is_published(self):
@@ -107,21 +140,16 @@ class Course(models.Model):
     def image_admin(self):
         if not self.image:
             return ""
-
         image_options = {"width": 200}
-
         url = self.image.url.build_url(**image_options)
         return url
 
     def image_thumbnail(self, as_html=False, width=500):
         if not self.image:
             return ""
-
         image_options = {"width": width}
-
         if as_html:
             url = self.image.url.image(**image_options)
-
         url = self.image.url.build_url(**image_options)
         return url
 
@@ -130,8 +158,23 @@ class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
-    thumbnail = CloudinaryField("image", blank=True, null=True)
-    video = CloudinaryField("video", blank=True, null=True, resource_type="video")
+    thumbnail = CloudinaryField(
+        "image",
+        public_id_prefix=get_public_id_prefix,
+        display_name=get_display_name,
+        tags=["thumbnail", "lesson"],
+        blank=True,
+        null=True,
+    )
+    video = CloudinaryField(
+        "video",
+        public_id_prefix=get_public_id_prefix,
+        display_name=get_display_name,
+        tags=["videos", "lesson"],
+        blank=True,
+        null=True,
+        resource_type="video",
+    )
     order = models.IntegerField(default=0)
     preview = models.BooleanField(default=False)
     can_preview = models.BooleanField(
@@ -151,5 +194,17 @@ class Lesson(models.Model):
     def save(self, *args, **kwargs):
         if self.public_id == "" or self.public_id is None:
             self.public_id = generate_public_id(self)
-
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return self.path
+
+    @property
+    def path(self):
+        course_path = self.course.path
+        if course_path.endswith("/"):
+            course_path = course_path[:-1]
+        return f"{course_path}/lessons/{self.public_id}"
+
+    def get_display_name(self):
+        return f"{self.title} - {self.course.get_display_name()}"
