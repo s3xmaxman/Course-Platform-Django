@@ -1,3 +1,4 @@
+from cloudinary import CloudinaryImage
 from django.contrib import admin
 from django.utils.html import format_html
 
@@ -21,7 +22,9 @@ class CourseAdmin(admin.ModelAdmin):
 
     def display_image(self, obj, *args, **kwargs):
         print(obj.image.url)
-        return format_html(f"<img src='{obj.image.url}'/>")
+        cloudinary_id = str(obj.image)
+        cloudinary_html = CloudinaryImage(cloudinary_id).image(width=500, height=500)
+        return format_html(cloudinary_html)
 
 
 # admin.site.register(Course)
