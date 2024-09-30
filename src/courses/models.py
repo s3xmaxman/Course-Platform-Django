@@ -30,11 +30,6 @@ def handle_upload(instance, filename):
 class Course(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
-    # image = models.ImageField(
-    #     upload_to=handle_upload,
-    #     null=True,
-    #     blank=True,
-    # )
     image = CloudinaryField("image", null=True)
     access = models.CharField(
         max_length=5,
@@ -78,6 +73,8 @@ class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
+    thumbnail = CloudinaryField("image", blank=True, null=True)
+    video = CloudinaryField("video", blank=True, null=True, resource_type="video")
     preview = models.BooleanField(default=False)
     can_preview = models.BooleanField(
         default=False, help_text="If user doesn't have access"
