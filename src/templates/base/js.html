@@ -15,3 +15,33 @@
   integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ"
   crossorigin="anonymous"
 ></script>
+
+<script defer>
+  function renderVideoElement(videoPlayerElement) {
+    const currentVideoId = videoPlayerElement.getAttribute("id");
+    const videoPlayerId =
+      `${currentVideoId}` + "-cfe-" + Math.random().toString(36).substr(2, 9);
+    videoPlayerElement.setAttribute("id", videoPlayerId);
+    const cloudName = videoPlayerElement.dataset.cloudName;
+    const videoUrl = videoPlayerElement.dataset.videoUrl;
+
+    if (cloudName && videoUrl) {
+      const cld = cloudinary.videoPlayer(videoPlayerId, {
+        cloudName: cloudName,
+      });
+      cld.source(videoUrl);
+    }
+  }
+
+  function renderAllVideos() {
+    const videoPlayerClassName = "cfe-video";
+    const videoPlayerElements =
+      document.getElementsByClassName(videoPlayerClassName);
+
+    for (let el of videoPlayerElements) {
+      renderVideoElement(el);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", renderAllVideos);
+</script>
