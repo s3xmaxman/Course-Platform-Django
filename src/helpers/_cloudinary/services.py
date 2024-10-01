@@ -11,8 +11,8 @@ def get_cloudinary_image_object(
         return ""
     image_options = {"width": width}
     if as_html:
-        return instance.image.url.image(**image_options)
-    url = instance.image.url.build_url(**image_options)
+        return image_object.image(**image_options)
+    url = image_object.build_url(**image_options)
     return url
 
 
@@ -43,6 +43,6 @@ def get_cloudinary_video_object(
     if height and width:
         video_options["crop"] = "limit"
     if as_html:
-        return instance.video.url.video(**video_options)
-    url = instance.video.url.build_url(**video_options)
+        return video_object.video(**video_options)
+    url = video_object.build_url(**video_options)
     return url

@@ -7,12 +7,13 @@ from django.utils.html import format_html
 from .models import Course, Lesson
 
 
-class LessonInline(admin.TabularInline):
+class LessonInline(admin.StackedInline):
     model = Lesson
     readonly_fields = [
         "public_id",
         "updated",
         "display_image",
+        "display_video",
     ]
     extra = 0
 
@@ -24,6 +25,19 @@ class LessonInline(admin.TabularInline):
         )
         return format_html(f"<img src={url} />")
 
+    display_image.short_description = "Current Image"
+
+    def display_video(self, obj, *args, **kwargs):
+        video_embed_html = helpers.get_cloudinary_video_object(
+            obj,
+            field_name="video",
+            as_html=True,
+            width=550,
+        )
+        return video_embed_html
+
+    display_video.short_description = "Current Video"
+
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
@@ -34,8 +48,8 @@ class CourseAdmin(admin.ModelAdmin):
         "public_id",
         "title",
         "description",
-        "image",
         "status",
+        "image",
         "access",
         "display_image",
     ]
@@ -48,6 +62,8 @@ class CourseAdmin(admin.ModelAdmin):
             width=200,
         )
         return format_html(f"<img src={url} />")
+
+    display_image.short_description = "Current Image"
 
 
 # admin.site.register(Course)
