@@ -34,7 +34,7 @@ class LessonInline(admin.StackedInline):
             as_html=True,
             width=550,
         )
-        return video_embed_html
+        return format_html(video_embed_html)
 
     display_video.short_description = "Current Video"
 

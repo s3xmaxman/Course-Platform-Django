@@ -16,6 +16,13 @@ def get_cloudinary_image_object(
     return url
 
 
+video_html = """
+<video controls autoplay>
+  <source src="{video_url}" type="video/mp4">
+</video>
+"""
+
+
 def get_cloudinary_video_object(
     instance,
     field_name="video",
@@ -25,6 +32,8 @@ def get_cloudinary_video_object(
     sign_url=False,
     fetch_format="auto",
     quality="auto",
+    controls=True,
+    autoplay=True,
 ):
     if not hasattr(instance, field_name):
         return ""
@@ -35,6 +44,8 @@ def get_cloudinary_video_object(
         "sign_url": sign_url,
         "fetch_format": fetch_format,
         "quality": quality,
+        "controls": controls,
+        "autoplay": autoplay,
     }
     if width is not None:
         video_options["width"] = width
@@ -42,7 +53,7 @@ def get_cloudinary_video_object(
         video_options["height"] = height
     if height and width:
         video_options["crop"] = "limit"
+        url = video_object.build_url(**video_options)
     if as_html:
-        return video_object.video(**video_options)
-    url = video_object.build_url(**video_options)
+        return video_html.format(video_url=url).strip()
     return url
