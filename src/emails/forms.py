@@ -1,6 +1,6 @@
 from django import forms
 
-from . import css, services
+from . import css
 
 
 class EmailForm(forms.Form):
@@ -13,3 +13,8 @@ class EmailForm(forms.Form):
             }
         )
     )
+
+
+def clean_email(self):
+    email = self.cleaned_data.get("email")
+    return email
