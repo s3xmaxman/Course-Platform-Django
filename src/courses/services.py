@@ -23,9 +23,11 @@ def get_lesson_detail(course_id=None, lesson_id=None):
     try:
         obj = Lesson.objects.get(
             course__public_id=course_id,
-            status=PublishStatus.PUBLISHED,
-            public_id=course_id,
+            course__status=PublishStatus.PUBLISHED,
+            status__in=[PublishStatus.PUBLISHED, PublishStatus.COMING_SOON],
+            public_id=lesson_id,
         )
-    except:
+    except Exception as e:
+        print(e)
         pass
     return obj
