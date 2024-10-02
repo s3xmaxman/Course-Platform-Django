@@ -7,6 +7,9 @@ from . import services
 
 def courses_list_view(request):
     queryset = services.get_publish_courses()
+    context = {
+        "object_list": queryset,
+    }
     return render(request, "courses/list.html")
 
 
