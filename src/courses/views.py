@@ -17,7 +17,12 @@ def courses_detail_view(request, course_id=None, *args, **kwargs):
     course_obj = services.get_course_detail(course_id=course_id)
     if course_obj is None:
         raise Http404
-    return render(request, "courses/detail.html")
+    lessons_queryset = course_obj.lessons.all()
+    context = {
+        "object": course_obj,
+        "lessons_queryset": lessons_queryset,
+    }
+    return render(request, "courses/detail.html", context)
 
 
 def Lessons_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs):
