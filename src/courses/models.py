@@ -193,3 +193,7 @@ class Lesson(models.Model):
 
     def get_display_name(self):
         return f"{self.title} - {self.course.get_display_name()}"
+
+    @property
+    def is_coming_soon(self):
+        return self.status == PublishStatus.COMING_SOON
