@@ -129,8 +129,15 @@ class Course(models.Model):
     def path(self):
         return f"/courses/{self.public_id}"
 
+    def requires_email(self):
+        return self.access == AccessRequirement.EMAIL_REQUIRED
+
     def get_display_name(self):
         return f"{self.title} - Course"
+
+    @property
+    def is_coming_soon(self):
+        return self.status == PublishStatus.COMING_SOON
 
     @property
     def is_published(self):
