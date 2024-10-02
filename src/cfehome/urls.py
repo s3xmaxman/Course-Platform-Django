@@ -27,6 +27,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path("", views.home_view),
     path("admin/", admin.site.urls),
     path("courses/", include("courses.urls")),
 ]
