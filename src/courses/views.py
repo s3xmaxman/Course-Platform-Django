@@ -11,7 +11,7 @@ def course_list_view(request):
     context = {
         "object_list": queryset,
     }
-    return render(request, "courses/list.html")
+    return render(request, "courses/list.html", context)
 
 
 def course_detail_view(request, course_id=None, *args, **kwargs):
