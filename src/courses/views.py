@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from django.http import Http404, JsonResponse
 from . import services
-from . import helpers
+import helpers
 
 # Create your views here.
 
 
-def courses_list_view(request):
+def course_list_view(request):
     queryset = services.get_publish_courses()
     context = {
         "object_list": queryset,
@@ -14,7 +14,7 @@ def courses_list_view(request):
     return render(request, "courses/list.html")
 
 
-def courses_detail_view(request, course_id=None, *args, **kwargs):
+def course_detail_view(request, course_id=None, *args, **kwargs):
     course_obj = services.get_course_detail(course_id=course_id)
     if course_obj is None:
         raise Http404
@@ -26,7 +26,7 @@ def courses_detail_view(request, course_id=None, *args, **kwargs):
     return render(request, "courses/detail.html", context)
 
 
-def Lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs):
+def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs):
     lesson_obj = services.get_lesson_detail(
         course_id=course_id,
         lesson_id=lesson_id,
