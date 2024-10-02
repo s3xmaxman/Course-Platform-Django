@@ -93,3 +93,34 @@ def send_verification_email(verify_obj_id):
         fail_silently=False,
         html_message=text_html,
     )
+
+
+def verify_token(token, max_attempts=5):
+    """
+    指定された検証トークンを持つEmailVerificationEventインスタンスを検証し、検証結果を返します。
+
+    Args:
+        token (str): 検証トークン
+        max_attempts (int, optional): 最大の検証回数. Defaults to 5.
+
+    Returns:
+        tuple: 検証結果を示すブール値、メッセージ、EmailVerificationEventインスタンス
+    """
+    qs = EmailVerificationEvent.objects.filter(token=token)
+    if not qs.exists() and not qs.count() == 1:
+        return False, "検証トークンが正しくありません。", None
+    has_email_expired = qs.filter(expired=True)
+    if has_email_expired.exists():
+        return False, "メールアドレスが期限切れです。", None
+    max_attempts_reached = qs.filter(attempts__gte=max_attempts)
+    if max_attempts_reached.exists():
+        return False, "最大の検証回数が超過です。", None
+    obj = qs.first()
+    obj.attempts += 1
+    obj.last_attempt_at = timezone.now()
+    if obj.attempts > max_attempts:
+        obj.expired = True
+        obj.expired_at = timezone.now()
+    obj.save()
+    email_obj = obj.parent
+    return True, "検証成功！", email_obj
