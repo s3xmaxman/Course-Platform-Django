@@ -1,6 +1,6 @@
 from django import forms
 
-from . import css
+from . import css, services
 
 
 class EmailForm(forms.Form):
@@ -17,4 +17,7 @@ class EmailForm(forms.Form):
 
 def clean_email(self):
     email = self.cleaned_data.get("email")
+    verified = services.verify_email(email)
+    if verified:
+        raise forms.ValidationError("Email already verified")
     return email
