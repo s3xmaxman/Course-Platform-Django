@@ -25,11 +25,15 @@ def courses_detail_view(request, course_id=None, *args, **kwargs):
     return render(request, "courses/detail.html", context)
 
 
-def Lessons_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs):
+def Lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs):
     lesson_obj = services.get_lesson_detail(
         course_id=course_id,
         lesson_id=lesson_id,
     )
     if lesson_obj is None:
         raise Http404
-    return render(request, "courses/lessons.html")
+    template_name = "courses/lesson-coming-soon.html"
+    if not lesson_obj.is_coming_soon:
+        template_name = "courses/lesson.html"
+    context = {"object": lesson_obj}
+    return render(request, template_name, context)
