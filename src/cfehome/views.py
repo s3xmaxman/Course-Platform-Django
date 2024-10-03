@@ -6,6 +6,10 @@ from emails.forms import EmailForm
 EMAIL_ADDRESS = settings.EMAIL_ADDRESS
 
 
+def login_logout_template_view(request, *args, **kwargs):
+    return render(request, "auth/login-logout.html", {})
+
+
 def home_view(request, *args, **kwargs):
     """
     ホームビューを処理し、home.htmlテンプレートをレンダリングし、メールフォームからのPOSTリクエストを処理します。

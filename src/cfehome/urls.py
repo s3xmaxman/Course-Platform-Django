@@ -29,11 +29,14 @@ from . import views
 
 urlpatterns = [
     path("", views.home_view),
+    path("login/", views.login_logout_template_view),
+    path("logout/", views.login_logout_template_view),
     path("hx/login/", email_token_login_view),
     path("admin/", admin.site.urls),
     path("courses/", include("courses.urls")),
     path("verify/<uuid:token>/", verify_email_token_view),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
