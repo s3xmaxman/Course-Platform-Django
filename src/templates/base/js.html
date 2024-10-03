@@ -17,6 +17,12 @@
 ></script>
 
 <script defer>
+  /**
+   * @function renderVideoElement
+   * @description ビデオプレーヤー要素をレンダリングします。
+   * @param {HTMLElement} videoPlayerElement - レンダリングするビデオプレーヤー要素。
+   * @returns {void}
+   */
   function renderVideoElement(videoPlayerElement) {
     const currentVideoId = videoPlayerElement.getAttribute("id");
     const videoPlayerId =
@@ -33,6 +39,11 @@
     }
   }
 
+  /**
+   * @function renderAllVideos
+   * @description `cfe-video`クラスを持つすべてのビデオ要素をレンダリングします。
+   * @returns {void}
+   */
   function renderAllVideos() {
     const videoPlayerClassName = "cfe-video";
     const videoPlayerElements =

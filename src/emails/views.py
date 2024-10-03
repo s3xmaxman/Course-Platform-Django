@@ -1,20 +1,57 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.conf import settings
+from .forms import EmailForm
 
 
 from . import services
 
+EMAIL_ADDRESS = settings.EMAIL_ADDRESS
+
 
 # Create your views here.
+def email_token_login_view(request):
+    """
+    メールトークンログインビュー
+
+    args:
+        request (django.http.request.HttpRequest): リクエストオブジェクト。
+
+    returns:
+        django.http.response.HttpResponse: フォームが有効な場合はメール確認メッセージを表示し、そうでない場合はフォームを表示します。
+    """
+    if not request.htmx:
+        return redirect("/")
+    email_id_in_session = request.session.get("email_id")
+    template_name = "emails/hx/form.html"
+    form = EmailForm(request.POST or None)
+    context = {
+        "form": form,
+        "message": "",
+        "show_form": not email_id_in_session,
+    }
+    if form.is_valid():
+        email_val = form.cleaned_data.get("email")
+        obj = services.start_verification_event(email_val)
+        context["form"] = EmailForm()
+        context["message"] = (
+            f"Success! Check your email for verification from {EMAIL_ADDRESS}"
+        )
+        return render(request, template_name, context)
+    else:
+        print(form.errors)
+    return render(request, template_name, context)
+
+
 def verify_email_token_view(request, token, *args, **kwargs):
     """
     トークンを検証し、ユーザーを認証します。
 
-    引数:
+    args:
         request (django.http.request.HttpRequest): リクエストオブジェクト。
         token (str): 検証するトークン。
 
-    戻り値:
+    returns:
         django.http.response.HttpResponse: トークンが有効な場合は次のURLにリダイレクトし、
             そうでない場合は/login/にリダイレクトします。
     """

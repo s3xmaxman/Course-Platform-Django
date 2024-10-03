@@ -24,11 +24,12 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 
-from emails.views import verify_email_token_view
+from emails.views import verify_email_token_view, email_token_login_view
 from . import views
 
 urlpatterns = [
     path("", views.home_view),
+    path("hx/login/", email_token_login_view),
     path("admin/", admin.site.urls),
     path("courses/", include("courses.urls")),
     path("verify/<uuid:token>/", verify_email_token_view),
