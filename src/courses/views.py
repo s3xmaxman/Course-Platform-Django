@@ -7,6 +7,15 @@ import helpers
 
 
 def course_list_view(request):
+    """
+    公開されたコースの一覧を表示します。
+
+    このビューは、タイトル、説明、および詳細ページへのリンクを含むすべての公開されたコースの一覧を返します。
+
+    :param request: Django リクエストオブジェクト
+    :return: Django レスポンスオブジェクト
+    """
+
     queryset = services.get_publish_courses()
     context = {
         "object_list": queryset,
@@ -20,6 +29,19 @@ def course_detail_view(
     *args,
     **kwargs,
 ):
+    """
+    このビューは、コースの詳細ページを表示するために使用されます。
+
+    ビューは、course_id パラメータを受け取り、それを使用してデータベースからコースオブジェクトを取得します。
+    コースオブジェクトは、コースに関連するレッスンを取得するために使用されます。
+    コースオブジェクトとレッスンのクエリセットは、コースの詳細テンプレートに渡されます。
+
+    コースオブジェクトが見つからない場合、ビューは 404 例外を発生させます。
+
+    :param request: リクエストオブジェクト
+    :param course_id: 表示するコースの public_id
+    :return: レンダリングされたコース詳細テンプレート
+    """
     course_obj = services.get_course_detail(course_id=course_id)
     if course_obj is None:
         raise Http404

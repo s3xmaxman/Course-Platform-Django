@@ -12,13 +12,17 @@ EMAIL_ADDRESS = settings.EMAIL_ADDRESS
 # Create your views here.
 def email_token_login_view(request):
     """
-    メールトークンログインビュー
+    HTMXリクエストに応じて、メールアドレスの検証フォームを提供します。
 
-    args:
-        request (django.http.request.HttpRequest): リクエストオブジェクト。
+    1. HTMXリクエストでない場合は、 "/" へリダイレクトします。
+    2. メールアドレスの検証フォームを出力します。
+    3. フォームが有効な場合、メールアドレスの検証を開始します。
+    4. フォームが無効な場合、エラーメッセージを出力します。
 
-    returns:
-        django.http.response.HttpResponse: フォームが有効な場合はメール確認メッセージを表示し、そうでない場合はフォームを表示します。
+    :param request: リクエストオブジェクト
+    :type request: django.http.request.HttpRequest
+    :return:
+    :rtype:
     """
     if not request.htmx:
         return redirect("/")
