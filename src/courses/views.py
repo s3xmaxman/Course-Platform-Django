@@ -8,19 +8,24 @@ import helpers
 
 def course_list_view(request):
     """
-    公開されたコースの一覧を表示します。
+    このビューは、公開されているコースの一覧を表示するために使用されます.
 
-    このビューは、タイトル、説明、および詳細ページへのリンクを含むすべての公開されたコースの一覧を返します。
+    ビューは、htmx リクエストかどうかをチェックし、
+    htmx リクエストの場合は少ない数のコースを取得して、
+    そうでない場合は全てのコースを取得します。
 
-    :param request: Django リクエストオブジェクト
-    :return: Django レスポンスオブジェクト
+    コースのクエリセットは、コースの一覧テンプレートに渡されます。
+
+    :param request: リクエストオブジェクト
+    :return: レンダリングされたコース一覧テンプレート
     """
-
     queryset = services.get_publish_courses()
-    context = {
-        "object_list": queryset,
-    }
-    return render(request, "courses/list.html", context)
+    context = {"object_list": queryset}
+    template_name = "courses/list.html"
+    if request.htmx:
+        template_name = "courses/snippets/list-display.html"
+        context["queryset"] = queryset[:3]
+    return render(request, template_name, context)
 
 
 def course_detail_view(
