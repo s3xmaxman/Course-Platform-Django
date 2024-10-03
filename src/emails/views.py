@@ -1,12 +1,40 @@
-from django.shortcuts import render, redirect
-from django.contrib import messages
 from django.conf import settings
-from .forms import EmailForm
-
+from django.contrib import messages
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django_htmx.http import HttpResponseClientRedirect
 
 from . import services
+from .forms import EmailForm
 
 EMAIL_ADDRESS = settings.EMAIL_ADDRESS
+
+
+def logout_btn_hx_view(request):
+    """
+    HTMXリクエストに応じて、ログアウトボタンを提供します。
+
+    1. HTMXリクエストでない場合は、 "/" へリダイレクトします。
+    2. POSTリクエストの場合は、セッションからメールIDを削除します。
+    3. メールIDが存在しない場合は、 "/" へリダイレクトします。
+    4. それ以外の場合は、ログアウトボタンを出力します。
+
+    :param request: リクエストオブジェクト
+    :type request: django.http.request.HttpRequest
+    :return:
+    :rtype:
+    """
+    if not request.htmx:
+        return redirect("/")
+    if request.method == "POST":
+        try:
+            del request.session["email_id"]
+        except:
+            pass
+        email_id_in_session = request.session.get("email_id")
+        if not email_id_in_session:
+            return HttpResponseClientRedirect("/")
+    return render(request, "emails/hx/logout-btn.html", {})
 
 
 # Create your views here.
@@ -49,15 +77,18 @@ def email_token_login_view(request):
 
 def verify_email_token_view(request, token, *args, **kwargs):
     """
-    トークンを検証し、ユーザーを認証します。
+    指定された検証トークンを持つEmailVerificationEventインスタンスを検証し、検証結果に基づいてログイン処理を実施します。
 
-    args:
-        request (django.http.request.HttpRequest): リクエストオブジェクト。
-        token (str): 検証するトークン。
+    1. 検証トークンを持つEmailVerificationEventインスタンスを検証します。
+    2. 検証が失敗した場合は、エラーメッセージを出力し、 "/" へリダイレクトします。
+    3. 検証が成功した場合は、ログイン状態を設定し、次のURL(ない場合は "/" )へリダイレクトします。
 
-    returns:
-        django.http.response.HttpResponse: トークンが有効な場合は次のURLにリダイレクトし、
-            そうでない場合は/login/にリダイレクトします。
+    :param request: リクエストオブジェクト
+    :param token: 検証トークン
+    :param args: 位置引数
+    :param kwargs: キーワード引数
+    :return: 302リダイレクト
+    :rtype: django.http.response.HttpResponse
     """
     did_verify, msg, email_obj = services.verify_token(token)
     if not did_verify:
